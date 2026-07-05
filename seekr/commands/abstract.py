@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from argparse import ArgumentParser, Namespace
 
+from seekr.config import SeekrConfig
+from seekr.texts.commit_disable_warning import CommitDisabledWarningText
 from seekr.utils.executor import Executor
 
 
@@ -42,8 +44,7 @@ class AbstractCommand(ABC):
 
         if name is not None and subcommand is None:
             Executor.execute(_empty_handler)
-
-
+    
     @staticmethod
     def _set_help_text_when_is_empty(parser: ArgumentParser,
                                      reference_command_name: str,
