@@ -16,6 +16,8 @@ class PathModel:
     is_nickname: bool = False
     is_system_path: bool = False
 
+    path_alias: str | None = None
+
     def to_system_path(self) -> Path:
         return Path(self.resource).absolute()
 
@@ -36,6 +38,16 @@ class PathModel:
             return False
 
         return self.compare(other)
+
+    @property
+    def alias(self):
+        if self.path_alias is not None:
+            return self.path_alias
+
+        if self.is_nickname:
+            return self.resource
+
+        return Path(self.resource).name
 
     @staticmethod
     def from_json(json: PathModelInJson) -> PathModel:

@@ -1,13 +1,7 @@
-from dataclasses import dataclass
 from pathlib import Path
 
 from seekr.config import SeekrConfig
-
-
-@dataclass
-class SeekrPath:
-    path: Path
-    name: str
+from seekr.models.path import PathModel
 
 
 class DefaultToScan:
@@ -15,16 +9,34 @@ class DefaultToScan:
         self.__platformdirs = SeekrConfig.get_dirs()
 
         self.__default_paths = [
-            SeekrPath(
-                    Path(self.__platformdirs.user_downloads_dir), "download"),
-            SeekrPath(
-                    Path(self.__platformdirs.user_documents_dir), "documents"),
-            SeekrPath(
-                    Path(self.__platformdirs.user_desktop_dir), "desktop"),
-            SeekrPath(
-                    Path(self.__platformdirs.user_pictures_dir), "pictures"),
-            SeekrPath(
-                    Path(self.__platformdirs.user_videos_dir), "videos"),
-            SeekrPath(
-                    Path(self.__platformdirs.user_music_dir), "music")
+            PathModel(
+                resource=str(Path(self.__platformdirs.user_downloads_dir).absolute()),
+                is_system_path=True,
+                path_alias="downloads",
+            ),
+            PathModel(
+                resource=str(Path(self.__platformdirs.user_documents_dir).absolute()),
+                is_system_path=True,
+                path_alias="documents",
+            ),
+            PathModel(
+                resource=str(Path(self.__platformdirs.user_desktop_dir).absolute()),
+                is_system_path=True,
+                path_alias="desktop",
+            ),
+            PathModel(
+                resource=str(Path(self.__platformdirs.user_pictures_dir).absolute()),
+                is_system_path=True,
+                path_alias="pictures",
+            ),
+            PathModel(
+                resource=str(Path(self.__platformdirs.user_videos_dir).absolute()),
+                is_system_path=True,
+                path_alias="videos",
+            ),
+            PathModel(
+                resource=str(Path(self.__platformdirs.user_music_dir).absolute()),
+                is_system_path=True,
+                path_alias="music",
+            ),
         ]
