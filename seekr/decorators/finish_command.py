@@ -15,8 +15,10 @@ def finish_command_execution(command):
             CommitDisabledWarningText.display()
             return result
 
-        config = SeekrConfig.get_instance()
-        config.commit()
+        has_execute_an_action = getattr(self, "has_execute_an_action", False)
+        if has_execute_an_action:
+            config = SeekrConfig.get_instance()
+            config.commit()
 
         return result
     return wrapper
