@@ -1,7 +1,10 @@
 from platform import system
-from typing import Any
+from typing import Any, Self
 
 from platformdirs import PlatformDirs
+from platformdirs.macos import MacOS
+from platformdirs.unix import Unix
+from platformdirs.windows import Windows
 
 from seekr.constants.defaults import get_default_config
 from seekr.exceptions.os import UnknownOperationalSystemError
@@ -14,6 +17,8 @@ class SeekrConfig:
 
     APP_COMPANY = "Pedroaba Tech"
     APP_NAME = "seekr"
+    
+    __instance = None
 
     def __init__(self):
         self.__config_path = self._get_config_folder()
@@ -34,6 +39,10 @@ class SeekrConfig:
 
         self.__build()
 
+    @staticmethod
+    def get_dirs() -> Unix | MacOS | Windows:
+        return SeekrConfig._get_config_folder()
+
     def __build(self):
         is_first_access = False
         if not self.__config_file.exists():
@@ -49,16 +58,17 @@ class SeekrConfig:
         file_content = self.__file_manager.read()
         self.__user_data_buffer = file_content
 
-    def _get_config_folder(self):
+    @staticmethod
+    def _get_config_folder():
         """
         Get the path to the appdata folder based on the operating system.
         """
         os_name = system().lower()
 
-        if os_name not in self.SUPPORTED_OPERATING_SYSTEMS:
+        if os_name not in SeekrConfig.SUPPORTED_OPERATING_SYSTEMS:
             raise UnknownOperationalSystemError(os_name)
 
-        return PlatformDirs(self.APP_NAME, self.APP_COMPANY)
+        return PlatformDirs(SeekrConfig.APP_NAME, SeekrConfig.APP_COMPANY)
 
     def commit(self):
         # commit config with binary and cryptographic content
@@ -68,3 +78,10 @@ class SeekrConfig:
     def set_property(self, property_name: str, property_value: Any) -> None:
         # set property on buffer to save after
         pass
+    
+    @classmethod
+    def get_instance(cls) -> SeekrConfig:
+        if not cls.__instance:
+            cls.__instance = SeekrConfig()
+
+        return cls.__instance

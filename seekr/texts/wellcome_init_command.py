@@ -26,6 +26,8 @@ class WellcomeInitCommand(TextCommandProtocol):
         welcome_text.append("• Downloads\n", style="green")
         welcome_text.append("• Documents\n", style="green")
         welcome_text.append("• Images\n", style="green")
+        welcome_text.append("• Videos\n", style="green")
+        welcome_text.append("• Music\n", style="green")
         welcome_text.append("• Desktop", style="green")
 
         console.print(
