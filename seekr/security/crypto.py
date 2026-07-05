@@ -3,6 +3,8 @@ from pathlib import Path
 
 from cryptography.fernet import Fernet
 
+from seekr.enconder import InternalJsonEncoder
+
 
 class NoCryptKeyException(AttributeError):
     def __init__(self) -> None:
@@ -30,7 +32,11 @@ class Crypto:
 
         fernet = Fernet(self.__key)
 
-        buffered_data = json.dumps(data).encode("utf-8")
+        buffered_data = (
+            json
+                .dumps(data, default=InternalJsonEncoder.encode)
+                .encode("utf-8")
+        )
         encrypted_buffer = fernet.encrypt(buffered_data)
 
         return encrypted_buffer

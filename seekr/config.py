@@ -1,3 +1,5 @@
+from collections.abc import Callable
+from dataclasses import asdict
 from platform import system
 from typing import Any, Self
 
@@ -77,7 +79,23 @@ class SeekrConfig:
 
     def set_property(self, property_name: str, property_value: Any) -> None:
         # set property on buffer to save after
-        pass
+        value_to_set = property_value
+        if isinstance(property_value, list):
+            values_list_as_dict = []
+            for item in property_value:
+                values_list_as_dict.append(asdict(item))
+
+            value_to_set = values_list_as_dict
+
+        self.__user_data_buffer[property_name] = value_to_set
+
+    def get_property(self, property_name: str, defaults: Any = None) -> Property:
+        if property_name not in self.__user_data_buffer:
+            return Property(property_name, defaults)
+        return Property(property_name, self.__user_data_buffer[property_name])
+
+    def get(self):
+        return self.__user_data_buffer
     
     @classmethod
     def get_instance(cls) -> SeekrConfig:
@@ -85,3 +103,41 @@ class SeekrConfig:
             cls.__instance = SeekrConfig()
 
         return cls.__instance
+
+
+class Property:
+    def __init__(self, property_name: str, property_value: Any) -> None:
+        self.__name = property_name
+        self.__value = property_value
+
+    def transform(self, transform_fn: Callable[[str, Any], Any]) -> Property:
+        """Used to transform the property's value to another property's value.
+
+        :param transform_fn:
+        :return:
+        """
+        self.__value = transform_fn(self.__name, self.__value)
+        return self
+    
+    def map(self, map_fn: Callable[[str, Any, int], Any]) -> Property:
+        """Transforms each item in the property's list value using the 
+        provided mapping function.
+
+        The mapping function is called for each item in the property's current value and
+        receives the property name, the current item, and the item's index.
+    
+        :param map_fn: A function used to transform each item in the property's value.
+                       It receives the property name, the current item, and the 
+                       item index.
+        :return: A new Property containing the transformed values.
+        """
+
+        new_value = []
+        for index, item in enumerate(self.__value):
+            new_value.append(map_fn(self.__name, item, index))
+
+        self.__value = new_value
+        return self
+
+    def get(self) -> Any:
+        return self.__value
