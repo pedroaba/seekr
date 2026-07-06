@@ -2,6 +2,7 @@ from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 
 from seekr.commands.abstract import AbstractCommand
 from seekr.commands.config_command import ConfigCommand
+from seekr.commands.config_get_command import ConfigGetCommand
 from seekr.commands.config_set_command import ConfigSetCommand
 from seekr.commands.config_set_ignores_command import ConfigSetIgnoresCommand
 from seekr.commands.config_show_command import ConfigShowCommand
@@ -23,10 +24,7 @@ class SeekrCli:
         )
         self.__config = SeekrConfig()
 
-        self._sub_commands: list[AbstractCommand] = []
-
         self.__build()
-
         self._arguments = Namespace()
 
     def parse(self):
@@ -60,12 +58,11 @@ class SeekrCli:
         config_show_command = ConfigShowCommand(command=config_command)
         config_show_command.build()
 
+        config_get_command = ConfigGetCommand(command=config_command)
+        config_get_command.build()
+
         config_set_command = ConfigSetCommand(command=config_command)
         config_set_command.build()
 
         config_set_ignores_command = ConfigSetIgnoresCommand(command=config_set_command)
         config_set_ignores_command.build()
-
-        self._sub_commands.append(config_command)
-        self._sub_commands.append(config_show_command)
-        self._sub_commands.append(config_set_command)

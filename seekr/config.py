@@ -1,5 +1,6 @@
 from collections.abc import Callable
-from dataclasses import asdict
+from dataclasses import asdict, is_dataclass
+from inspect import isclass
 from platform import system
 from typing import Any, Self
 
@@ -138,6 +139,25 @@ class Property:
 
         self.__value = new_value
         return self
+
+    def is_dict(self) -> bool:
+        return isinstance(self.__value, dict)
+
+    def is_list(self) -> bool:
+        return isinstance(self.__value, list)
+
+    def is_tuple(self) -> bool:
+        return isinstance(self.__value, tuple)
+
+    def is_number(self) -> bool:
+        return isinstance(self.__value, int | float)
+
+    def is_string(self) -> bool:
+        return isinstance(self.__value, str)
+
+    @staticmethod
+    def __check_list_item_type_is_json(item: Any) -> bool:
+        return isinstance(item, dict) or is_dataclass(item) or isclass(item)
 
     def get(self) -> Any:
         return self.__value
