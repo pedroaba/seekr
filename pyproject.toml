@@ -6,14 +6,42 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "cryptography>=49.0.0",
+    "keyring>=25.7.0",
     "platformdirs>=4.10.0",
     "rich>=15.0.0",
 ]
 
 [dependency-groups]
 dev = [
+    "pytest>=9.1.1",
     "ruff>=0.15.20",
+    "taskipy>=1.14.1",
 ]
+
+[tool.pytest.ini_options]
+addopts = [
+    "-s",
+    "-vv"
+]
+python_files = [
+    "test_*.py",
+    "*_test.py",
+]
+python_classes = [
+    "Test*",
+    "*Tests",
+]
+python_functions = [
+    "test_*",
+]
+testpaths = [
+    "tests",
+]
+
+[tool.taskipy.tasks]
+test = "pytest || [ $? -eq 5 ]"
+lint = "ruff check ."
+format = "ruff format ."
 
 [tool.ruff]
 line-length = 88
