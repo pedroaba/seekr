@@ -17,8 +17,6 @@ class ConfigShowCommand(AbstractCommand):
 
     @finish_command_execution
     def handle(self, namespace: Namespace):
-        super().handle(namespace)
-
         config = SeekrConfig.get_instance()
 
         config_on_memory = config.get()
