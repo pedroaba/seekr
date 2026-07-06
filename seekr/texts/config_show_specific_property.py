@@ -6,6 +6,8 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
+from seekr.enconder import InternalJsonEncoder
+
 
 @dataclass(frozen=True)
 class Row:
@@ -50,7 +52,8 @@ class ConfigShowSpecificProperty:
     @staticmethod
     def _format_value(value: Any) -> str:
         if isinstance(value, (dict, list, tuple)):
-            return json.dumps(value, indent=2, ensure_ascii=False)
+            return json.dumps(
+                value, indent=2, ensure_ascii=False, default=InternalJsonEncoder.encode)
 
         if value is None:
             return "[dim]None[/dim]"
