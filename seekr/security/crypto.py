@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 
 from cryptography.fernet import Fernet
 
@@ -13,8 +12,22 @@ class NoCryptKeyException(AttributeError):
 
 
 class Crypto:
-    def __init__(self) -> None:
-        self.__key: bytes = b""
+    def __init__(self, key: bytes | None = None) -> None:
+        self.__key = key or b""
+
+    @property
+    def key(self) -> bytes:
+        if self.__key is None or self.__key == b"":
+            raise NoCryptKeyException()
+
+        return self.__key
+
+    def initialize(self) -> None:
+        if self.__key is not None or self.__key != b"":
+            return
+
+        fernet = Fernet.generate_key()
+        self.__key = fernet
 
     def encrypt(self, data: dict) -> bytes:
         if self.__key is None:

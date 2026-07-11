@@ -2,16 +2,18 @@ from collections.abc import Callable
 from dataclasses import asdict, is_dataclass
 from inspect import isclass
 from platform import system
-from typing import Any, Self
+from typing import Any
 
 from platformdirs import PlatformDirs
 from platformdirs.macos import MacOS
 from platformdirs.unix import Unix
 from platformdirs.windows import Windows
 
+from seekr.constants.app import AppInfo
 from seekr.constants.defaults import get_default_config
 from seekr.exceptions.os import UnknownOperationalSystemError
 from seekr.security.crypto import Crypto
+from seekr.security.secure_store import SecureStore
 from seekr.utils.file_manager import FileManager
 
 
@@ -31,7 +33,17 @@ class SeekrConfig:
         self.__key_path = self.__config_path.user_config_path / "keys"
 
         # crypto instance
-        self.__crypto = Crypto(self.__key_path)
+        self.__secure_store = SecureStore()
+        key = self.__secure_store.get(AppInfo.CRYPTO_KEY_INFO)
+
+        self.__crypto = Crypto(
+            bytes(key, "utf-8") if key is not None else None,
+        )
+        self.__crypto.initialize()
+
+        if key is None:
+            self.__secure_store.set(
+                AppInfo.CRYPTO_KEY_INFO, self.__crypto.key.decode("utf-8"))
 
         # file manager configuration
         self.__file_manager = FileManager(self.__config_file)

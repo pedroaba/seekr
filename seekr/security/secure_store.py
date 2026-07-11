@@ -1,12 +1,12 @@
-from __future__ import annotations
-
 import subprocess
 import sys
 from getpass import getuser
 
 import keyring
+from cryptography.fernet import Fernet
 from keyring.errors import KeyringError
 
+from seekr.constants.app import AppInfo
 from seekr.texts.keyring_troubleshooting import KeyringTroubleshootingText
 
 
@@ -15,8 +15,11 @@ class SecureStore:
         self.__diagnose()
         self.__username = getuser()
 
-    def set(self, service: str, value: str) -> bool:
+    def set(self, service: str, value: str | bytes) -> bool:
         try:
+            if isinstance(value, bytes):
+                value = value.decode("utf-8")
+
             keyring.set_password(service, self.__username, value)
             return True
         except Exception as error:
