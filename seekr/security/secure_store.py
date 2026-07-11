@@ -3,10 +3,8 @@ import sys
 from getpass import getuser
 
 import keyring
-from cryptography.fernet import Fernet
 from keyring.errors import KeyringError
 
-from seekr.constants.app import AppInfo
 from seekr.texts.keyring_troubleshooting import KeyringTroubleshootingText
 
 
