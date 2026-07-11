@@ -1,9 +1,11 @@
+import json
 from collections.abc import Callable
 from dataclasses import asdict, is_dataclass
 from inspect import isclass
 from platform import system
 from typing import Any
 
+from cryptography.fernet import InvalidToken
 from platformdirs import PlatformDirs
 from platformdirs.macos import MacOS
 from platformdirs.unix import Unix
@@ -58,9 +60,9 @@ class SeekrConfig:
     def get_dirs() -> Unix | MacOS | Windows:
         return SeekrConfig._get_config_folder()
 
-    def __build(self):
+    def __build(self, *, reset: bool = False):
         is_first_access = False
-        if not self.__config_file.exists():
+        if not self.__config_file.exists() or reset:
             self.__config_file.parent.mkdir(parents=True, exist_ok=True)
             self.__config_file.touch(exist_ok=True)
             is_first_access = True
@@ -70,8 +72,11 @@ class SeekrConfig:
             self.commit()
             return
 
-        file_content = self.__file_manager.read()
-        self.__user_data_buffer = file_content
+        try:
+            file_content = self.__file_manager.read()
+            self.__user_data_buffer = file_content
+        except (InvalidToken, json.JSONDecodeError, OSError):
+            self.__build(reset=True)
 
     @staticmethod
     def _get_config_folder():
