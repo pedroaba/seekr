@@ -4,8 +4,9 @@ from pathlib import Path
 from seekr.commands.abstract import AbstractCommand
 from seekr.config import SeekrConfig
 from seekr.decorators.finish_command import finish_command_execution
-from seekr.exceptions.file import FileOrFolderDoesNotExist
 from seekr.models.path import PathModel
+from seekr.utils.validators.nickname import NicknameValidator
+from seekr.utils.validators.path import PathValidator
 
 
 class ConfigSetIgnoresCommand(AbstractCommand):
@@ -33,16 +34,13 @@ class ConfigSetIgnoresCommand(AbstractCommand):
         ignores_patterns: list[PathModel] = []
 
         for path in paths:
-            path_to_add = Path(path)
-            if not path_to_add.exists():
-                raise FileOrFolderDoesNotExist(path_to_add)
-
-            path_str = str(path_to_add.absolute())
+            path_str = str(PathValidator(path).validate())
             model = PathModel(path_str, is_system_path=True)
             ignores_patterns.append(model)
 
         for nickname in nicknames:
-            model = PathModel(nickname, is_nickname=True)
+            validated_nickname = NicknameValidator(nickname).validate()
+            model = PathModel(validated_nickname, is_nickname=True)
             ignores_patterns.append(model)
 
         config = SeekrConfig.get_instance()

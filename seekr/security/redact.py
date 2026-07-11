@@ -6,8 +6,8 @@ class RedactPath:
 
     @staticmethod
     def execute(path_to_redact: Path) -> str:
-        absolute_path = path_to_redact.expanduser().absolute()
-        home = Path.home().absolute()
+        absolute_path = path_to_redact.expanduser().resolve()
+        home = Path.home().resolve()
 
         try:
             relative_parts = absolute_path.relative_to(home).parts

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, TypedDict
+from typing import TypedDict
 
 
 class PathModelInJson(TypedDict):
@@ -19,7 +19,7 @@ class PathModel:
     path_alias: str | None = None
 
     def to_system_path(self) -> Path:
-        return Path(self.resource).absolute()
+        return Path(self.resource).resolve()
 
     def to_json(self) -> PathModelInJson:
         return {
@@ -29,9 +29,11 @@ class PathModel:
         }
 
     def compare(self, other: PathModel) -> bool:
-        return (self.resource == other.resource
-                and self.is_nickname == other.is_nickname
-                and self.is_system_path == other.is_system_path)
+        return (
+            self.resource == other.resource
+            and self.is_nickname == other.is_nickname
+            and self.is_system_path == other.is_system_path
+        )
 
     def __eq__(self, other):
         if not isinstance(other, PathModel):
