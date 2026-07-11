@@ -23,7 +23,7 @@ class Crypto:
         return self.__key
 
     def initialize(self) -> None:
-        if self.__key is not None or self.__key != b"":
+        if self.__key is not None and self.__key != b"":
             return
 
         fernet = Fernet.generate_key()
