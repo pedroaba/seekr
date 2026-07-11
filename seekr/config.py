@@ -88,7 +88,6 @@ class SeekrConfig:
     def commit(self):
         # commit config with binary and cryptographic content
         self.__file_manager.write(self.__user_data_buffer)
-        print(f"File writen on {self.__key_path.absolute()}")
 
     def set_property(self, property_name: str, property_value: Any) -> None:
         # set property on buffer to save after
