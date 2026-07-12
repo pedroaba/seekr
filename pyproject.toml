@@ -13,6 +13,8 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "bandit>=1.9.4",
+    "pip-audit>=2.10.1",
     "pytest>=9.1.1",
     "ruff>=0.15.20",
     "taskipy>=1.14.1",
@@ -42,6 +44,8 @@ testpaths = [
 test = "pytest || [ $? -eq 5 ]"
 lint = "ruff check ."
 format = "ruff format ."
+audit = "pip-audit"
+security = "bandit -r seekr"
 
 [tool.ruff]
 line-length = 88

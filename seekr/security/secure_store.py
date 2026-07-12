@@ -1,4 +1,5 @@
-import subprocess
+# Required to run the fixed, application-controlled keyring diagnostic command.
+import subprocess  # nosec B404
 import sys
 from getpass import getuser
 
@@ -41,7 +42,9 @@ class SecureStore:
     @staticmethod
     def __diagnose() -> str:
         try:
-            result = subprocess.run(
+            # The executable and every argument are controlled by Seekr. No user
+            # input or shell interpolation reaches this process invocation.
+            result = subprocess.run(  # nosec B603
                 [sys.executable, "-m", "keyring", "diagnose"],
                 capture_output=True,
                 text=True,
