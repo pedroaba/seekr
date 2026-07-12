@@ -40,3 +40,6 @@ class DefaultToScan:
                 path_alias="music",
             ),
         ]
+
+    def get(self):
+        return self.__default_paths
