@@ -11,6 +11,14 @@ from seekr.texts.config_show_specific_property import ConfigShowSpecificProperty
 class ConfigGetCommand(AbstractCommand):
     identifier = "get"
     destination_command = "config_key"
+    help_text = "Read specific configuration values"
+    description = (
+        "Display one or more configuration values. Absolute paths in ignore entries "
+        "are redacted before output."
+    )
+    epilog = (
+        "Examples:\n  seekr config get ignores\n  seekr config get ignores --format"
+    )
 
     @finish_command_execution
     def handle(self, namespace: Namespace):
@@ -49,6 +57,8 @@ class ConfigGetCommand(AbstractCommand):
             "key_names",
             default=None,
             nargs="*",
+            metavar="KEY",
+            help="Configuration keys to display, such as ignores.",
         )
 
         self.parser.add_argument(
@@ -57,4 +67,5 @@ class ConfigGetCommand(AbstractCommand):
             action="store_true",
             dest="format_output",
             default=False,
+            help="Format structured values as indented JSON.",
         )

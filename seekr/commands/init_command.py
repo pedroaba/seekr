@@ -10,6 +10,12 @@ from seekr.utils.walker import Walker
 
 class InitCommand(AbstractCommand):
     identifier = "init"
+    help_text = "Scan the default user folders"
+    description = (
+        "Scan Seekr's default folders for files and directories. The default "
+        "locations are Downloads, Documents, Desktop, Pictures, Videos, and Music."
+    )
+    epilog = "Examples:\n  seekr init\n  seekr init --show"
 
     def build(self):
         self.parser.add_argument(
@@ -18,6 +24,7 @@ class InitCommand(AbstractCommand):
             dest="show_mapped_paths",
             action="store_true",
             default=False,
+            help="Display the files and directories found during the scan.",
         )
 
     @finish_command_execution

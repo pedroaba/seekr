@@ -11,10 +11,12 @@ class ConfigInitCommand(AbstractCommand):
     identifier = "init"
     destination_command = "config_key"
     destination_description = "Initialize configuration values"
-    help_text = "Initialize configuration values"
+    help_text = "Initialize the local configuration"
     description = (
-        "Update a Seekr configuration value. Choose one of the available keys below."
+        "Create or load the local Seekr configuration. Existing values are preserved "
+        "unless --reset is provided."
     )
+    epilog = "Examples:\n  seekr config init\n  seekr config init --reset"
 
     def build(self):
         self.parser.add_argument(
@@ -23,6 +25,7 @@ class ConfigInitCommand(AbstractCommand):
             dest="reset",
             action="store_true",
             default=False,
+            help="Replace existing configuration values with Seekr's defaults.",
         )
 
     @finish_command_execution
