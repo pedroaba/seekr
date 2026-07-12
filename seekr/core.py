@@ -6,7 +6,7 @@ from seekr.commands.config_init_command import ConfigInitCommand
 from seekr.commands.config_set_command import ConfigSetCommand
 from seekr.commands.config_set_ignores_command import ConfigSetIgnoresCommand
 from seekr.commands.config_show_command import ConfigShowCommand
-from seekr.texts import TextDisplayer, TextDisplayerClassKeys
+from seekr.commands.init_command import InitCommand
 
 
 class SeekrCli:
@@ -29,10 +29,6 @@ class SeekrCli:
         self._arguments = self._parser.parse_args()
 
     def exec(self):
-        if self._arguments.init:
-            TextDisplayer.display(TextDisplayerClassKeys.WELLCOME_INIT_COMMAND)
-            return
-
         has_handler_for_command = hasattr(self._arguments, "handler")
         if not has_handler_for_command:
             self._parser.print_help()
@@ -67,3 +63,6 @@ class SeekrCli:
 
         config_set_ignores_command = ConfigSetIgnoresCommand(command=config_set_command)
         config_set_ignores_command.build()
+
+        init_command = InitCommand(parser=self._parser)
+        init_command.build()
