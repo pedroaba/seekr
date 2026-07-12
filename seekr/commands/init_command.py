@@ -38,10 +38,3 @@ class InitCommand(AbstractCommand):
         found_paths = walker.walk()
         if namespace.show_mapped_paths:
             FoundPathsText(found_paths).display()
-
-        # TODO: Adicionar a contagem de arquivos e pastas no footer
-        # TODO: Mapear os dados para uma estrutura leve para consulta
-        # TODO: Processar os dados através de um fuzzy ou método parecido
-        # TODO: Salvar esses dados processados em algum lugar de forma criptografada
-        # TODO: Indicar para o usuário que foi mapeado com sucesso e mostrar como
-        #  realizar a pesquisa pelo seekr
