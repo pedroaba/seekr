@@ -1,12 +1,11 @@
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 
-from seekr.commands.abstract import AbstractCommand
 from seekr.commands.config_command import ConfigCommand
 from seekr.commands.config_get_command import ConfigGetCommand
+from seekr.commands.config_init_command import ConfigInitCommand
 from seekr.commands.config_set_command import ConfigSetCommand
 from seekr.commands.config_set_ignores_command import ConfigSetIgnoresCommand
 from seekr.commands.config_show_command import ConfigShowCommand
-from seekr.config import SeekrConfig
 from seekr.texts import TextDisplayer, TextDisplayerClassKeys
 
 
@@ -22,7 +21,6 @@ class SeekrCli:
             ),
             formatter_class=RawDescriptionHelpFormatter,
         )
-        self.__config = SeekrConfig()
 
         self.__build()
         self._arguments = Namespace()
@@ -54,6 +52,9 @@ class SeekrCli:
 
         config_command = ConfigCommand(parser=self._parser)
         config_command.build()
+
+        config_init_command = ConfigInitCommand(command=config_command)
+        config_init_command.build()
 
         config_show_command = ConfigShowCommand(command=config_command)
         config_show_command.build()

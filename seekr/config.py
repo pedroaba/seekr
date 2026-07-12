@@ -24,7 +24,7 @@ class SeekrConfig:
 
     APP_COMPANY = "Pedroaba Tech"
     APP_NAME = "seekr"
-    
+
     __instance = None
 
     def __init__(self):
@@ -45,7 +45,8 @@ class SeekrConfig:
 
         if key is None:
             self.__secure_store.set(
-                AppInfo.CRYPTO_KEY_INFO, self.__crypto.key.decode("utf-8"))
+                AppInfo.CRYPTO_KEY_INFO, self.__crypto.key.decode("utf-8")
+            )
 
         # file manager configuration
         self.__file_manager = FileManager(self.__config_file)
@@ -54,13 +55,11 @@ class SeekrConfig:
 
         self.__user_data_buffer = {}
 
-        self.__build()
-
     @staticmethod
     def get_dirs() -> Unix | MacOS | Windows:
         return SeekrConfig._get_config_folder()
 
-    def __build(self, *, reset: bool = False):
+    def build(self, *, reset: bool = False):
         is_first_access = False
         if not self.__config_file.exists() or reset:
             self.__config_file.parent.mkdir(parents=True, exist_ok=True)
@@ -75,8 +74,8 @@ class SeekrConfig:
         try:
             file_content = self.__file_manager.read()
             self.__user_data_buffer = file_content
-        except (InvalidToken, json.JSONDecodeError, OSError):
-            self.__build(reset=True)
+        except InvalidToken, json.JSONDecodeError, OSError:
+            self.build(reset=True)
 
     @staticmethod
     def _get_config_folder():
@@ -113,7 +112,7 @@ class SeekrConfig:
 
     def get(self):
         return self.__user_data_buffer
-    
+
     @classmethod
     def get_instance(cls) -> SeekrConfig:
         if not cls.__instance:
@@ -135,16 +134,16 @@ class Property:
         """
         self.__value = transform_fn(self.__name, self.__value)
         return self
-    
+
     def map(self, map_fn: Callable[[str, Any, int], Any]) -> Property:
-        """Transforms each item in the property's list value using the 
+        """Transforms each item in the property's list value using the
         provided mapping function.
 
         The mapping function is called for each item in the property's current value and
         receives the property name, the current item, and the item's index.
-    
+
         :param map_fn: A function used to transform each item in the property's value.
-                       It receives the property name, the current item, and the 
+                       It receives the property name, the current item, and the
                        item index.
         :return: A new Property containing the transformed values.
         """
