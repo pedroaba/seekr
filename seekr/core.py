@@ -1,3 +1,4 @@
+import sys
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 
 from seekr.commands.config_command import ConfigCommand
@@ -7,9 +8,12 @@ from seekr.commands.config_set_command import ConfigSetCommand
 from seekr.commands.config_set_ignores_command import ConfigSetIgnoresCommand
 from seekr.commands.config_show_command import ConfigShowCommand
 from seekr.commands.init_command import InitCommand
+from seekr.commands.search_command import SearchCommand
 
 
 class SeekrCli:
+    _explicite_commands = set()
+
     def __init__(self):
         self._parser = ArgumentParser(
             description="Search and configure ignored paths for Seekr.",
@@ -25,8 +29,19 @@ class SeekrCli:
         self.__build()
         self._arguments = Namespace()
 
-    def parse(self):
-        self._arguments = self._parser.parse_args()
+    def parse(self, args: list[str] | None = None):
+        arguments = list(sys.argv[1:] if args is None else args)
+
+        if arguments and self._is_implicit_search(arguments[0]):
+            arguments.insert(0, SearchCommand.identifier)
+
+        self._arguments = self._parser.parse_args(arguments)
+
+    def _is_implicit_search(self, first_argument: str) -> bool:
+        return (
+            first_argument not in self._explicite_commands
+            and not first_argument.startswith("-")
+        )
 
     def exec(self):
         has_handler_for_command = hasattr(self._arguments, "handler")
@@ -39,13 +54,6 @@ class SeekrCli:
             command_handler(self._arguments)
 
     def __build(self):
-        self._parser.add_argument(
-            "-i",
-            "--init",
-            help="Create the default Seekr configuration file.",
-            action="store_true",
-        )
-
         config_command = ConfigCommand(parser=self._parser)
         config_command.build()
 
@@ -66,3 +74,15 @@ class SeekrCli:
 
         init_command = InitCommand(parser=self._parser)
         init_command.build()
+
+        search_command = SearchCommand(parser=self._parser)
+        search_command.build()
+
+        # explicite commands
+        SeekrCli._explicite_commands.add(config_command.command)
+        SeekrCli._explicite_commands.add(config_init_command.command)
+        SeekrCli._explicite_commands.add(config_show_command.command)
+        SeekrCli._explicite_commands.add(config_get_command.command)
+        SeekrCli._explicite_commands.add(config_set_command.command)
+        SeekrCli._explicite_commands.add(config_set_ignores_command.command)
+        SeekrCli._explicite_commands.add(init_command.command)
