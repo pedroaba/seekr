@@ -22,6 +22,8 @@ class SearchCommand(AbstractCommand):
 
     def handle(self, namespace):
         query = " ".join(namespace.query or [])
+        limit_of_results = namespace.limit or 10
+        precision_cutoff = namespace.precision or 80.0
 
         conn = SqlAlchemyConnection.get_instance()
 
@@ -38,8 +40,8 @@ class SearchCommand(AbstractCommand):
         results = process.extract(
             query,
             paths,
-            limit=5,
-            score_cutoff=80.0,
+            limit=limit_of_results,
+            score_cutoff=precision_cutoff,
         )
 
         results_to_show = []
@@ -56,4 +58,18 @@ class SearchCommand(AbstractCommand):
             nargs="+",
             metavar="QUERY",
             help="One or more terms to match against indexed paths.",
+        )
+
+        self.parser.add_argument(
+            "-l", "--limit",
+            dest="limit",
+            type=int,
+            default=10,
+        )
+
+        self.parser.add_argument(
+            "--precision",
+            dest="precision",
+            type=int,
+            default=80,
         )
