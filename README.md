@@ -96,3 +96,29 @@ task lint
 task security
 task audit
 ```
+
+## Database migrations
+
+Seekr uses SQLAlchemy models from `seekr/database/models/` and stores Alembic
+migrations in `seekr/database/migrations/`.
+
+Create a migration after changing a model:
+
+```bash
+alembic revision --autogenerate -m "describe the change"
+```
+
+Apply or revert migrations:
+
+```bash
+task db-upgrade
+task db-downgrade
+task db-history
+```
+
+The default database is `seekr.db` in the project directory. Override it with a
+SQLAlchemy URL when needed:
+
+```bash
+SEEKR_DATABASE_URL=sqlite:////absolute/path/seekr.db alembic upgrade head
+```
