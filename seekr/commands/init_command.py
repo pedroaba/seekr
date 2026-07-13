@@ -1,6 +1,6 @@
 from argparse import ArgumentParser, Namespace
 
-from sqlalchemy import select, func, delete
+from sqlalchemy import delete, func, select
 
 from seekr.commands.abstract import AbstractCommand
 from seekr.constants.paths import DefaultToScan
