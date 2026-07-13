@@ -16,10 +16,14 @@ class SeekrCli:
 
     def __init__(self):
         self._parser = ArgumentParser(
-            description="Search and configure ignored paths for Seekr.",
+            description=(
+                "Find indexed files and directories with fuzzy search, rebuild the "
+                "local index, and manage Seekr configuration."
+            ),
             epilog=(
                 "Examples:\n"
-                "  seekr --init\n"
+                "  seekr faculdade trabalho final\n"
+                "  seekr init --show\n"
                 "  seekr config show\n"
                 "  seekr config set ignores --path .venv build"
             ),

@@ -10,5 +10,12 @@ class ConfigCommand(AbstractCommand):
         "Manage Seekr configuration values, including ignored paths and saved "
         "preferences."
     )
+    epilog = (
+        "Examples:\n"
+        "  seekr config init\n"
+        "  seekr config show\n"
+        "  seekr config get ignores\n"
+        "  seekr config set ignores --path .venv"
+    )
 
     def build(self): ...

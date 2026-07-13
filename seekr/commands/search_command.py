@@ -9,6 +9,16 @@ from seekr.texts.search_results import SearchResultsText
 
 class SearchCommand(AbstractCommand):
     identifier = "search"
+    help_text = "Search indexed files and directories"
+    description = (
+        "Find indexed files and directories using a fuzzy match. Type the search "
+        "terms directly after seekr; the search command is selected automatically."
+    )
+    epilog = (
+        "Examples:\n"
+        "  seekr report final\n"
+        "  seekr faculdade engenharia"
+    )
 
     def handle(self, namespace):
         query = " ".join(namespace.query or [])
@@ -44,5 +54,6 @@ class SearchCommand(AbstractCommand):
         self.parser.add_argument(
             "query",
             nargs="+",
-            help="Terms used to search files and directories.",
+            metavar="QUERY",
+            help="One or more terms to match against indexed paths.",
         )

@@ -21,7 +21,13 @@ class InitCommand(AbstractCommand):
         "Scan Seekr's default folders for files and directories. The default "
         "locations are Downloads, Documents, Desktop, Pictures, Videos, and Music."
     )
-    epilog = "Examples:\n  seekr init\n  seekr init --show"
+    epilog = (
+        "Examples:\n"
+        "  seekr init\n"
+        "  seekr init --show\n"
+        "  seekr init --show --number-of-paths-showing 25\n"
+        "  seekr init --force"
+    )
 
     def __init__(
         self,
@@ -47,7 +53,7 @@ class InitCommand(AbstractCommand):
             dest="number_of_paths_showing",
             type=int,
             default=10,
-            help="Number of paths to show. If pass -1 show all paths.",
+            help="Maximum paths displayed with --show. Use -1 to display all.",
         )
         
         self.parser.add_argument(
@@ -55,6 +61,7 @@ class InitCommand(AbstractCommand):
             dest="force",
             action="store_true",
             default=False,
+            help="Discard the existing index and scan the default folders again.",
         )
 
     @finish_command_execution

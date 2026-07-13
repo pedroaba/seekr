@@ -9,5 +9,6 @@ class ConfigSetCommand(AbstractCommand):
     description = (
         "Update a Seekr configuration value. Choose one of the available keys below."
     )
+    epilog = "Example:\n  seekr config set ignores --path .venv build"
 
     def build(self): ...

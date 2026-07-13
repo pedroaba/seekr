@@ -16,6 +16,7 @@ class ConfigShowCommand(AbstractCommand):
     destination_description = "Configuration output options"
     help_text = "Show the current configuration"
     description = "Print the current Seekr configuration as formatted JSON."
+    epilog = "Example:\n  seekr config show"
 
     @finish_command_execution
     def handle(self, namespace: Namespace):
