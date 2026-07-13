@@ -105,8 +105,12 @@ migrations in `seekr/database/migrations/`.
 Create a migration after changing a model:
 
 ```bash
-alembic revision --autogenerate -m "describe the change"
+task db-generate -m "describe the change"
 ```
+
+`db-generate` creates a migration file by comparing the SQLAlchemy models with
+the current database schema. `db-upgrade` only applies migration files that
+already exist.
 
 Apply or revert migrations:
 
@@ -116,8 +120,8 @@ task db-downgrade
 task db-history
 ```
 
-The default database is `seekr.db` in the project directory. Override it with a
-SQLAlchemy URL when needed:
+By default, the database is stored in Seekr's user data directory. Override it
+with a SQLAlchemy URL when needed:
 
 ```bash
 SEEKR_DATABASE_URL=sqlite:////absolute/path/seekr.db alembic upgrade head

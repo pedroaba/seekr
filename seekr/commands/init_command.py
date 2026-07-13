@@ -1,11 +1,16 @@
-from argparse import Namespace
+from argparse import ArgumentParser, Namespace
+
+from sqlalchemy import select, func
 
 from seekr.commands.abstract import AbstractCommand
 from seekr.constants.paths import DefaultToScan
+from seekr.database.connection import SqlAlchemyConnection
 from seekr.database.initializer import initialize_database
+from seekr.database.models import PathModel
 from seekr.decorators.finish_command import finish_command_execution
 from seekr.texts import TextDisplayer, TextDisplayerClassKeys
 from seekr.texts.found_paths import FoundPathsText, Metadata
+from seekr.utils.normalize_path import normalize_path
 from seekr.utils.walker import Walker
 
 
@@ -17,6 +22,14 @@ class InitCommand(AbstractCommand):
         "locations are Downloads, Documents, Desktop, Pictures, Videos, and Music."
     )
     epilog = "Examples:\n  seekr init\n  seekr init --show"
+
+    def __init__(
+        self,
+        parser: ArgumentParser | None = None,
+        command: AbstractCommand | None = None,
+    ):
+        super().__init__(parser, command)
+        self._conn = None
 
     def build(self):
         self.parser.add_argument(
@@ -41,6 +54,23 @@ class InitCommand(AbstractCommand):
     def handle(self, namespace: Namespace):
         initialize_database()
 
+        self._conn: SqlAlchemyConnection = SqlAlchemyConnection.get_instance()
+
+        total_of_paths = 0
+        with self._conn.build_session() as session:
+            statement = select(
+                func.count(PathModel.id)
+            )
+
+            total_of_paths = session.scalar(statement) or 0
+
+        if total_of_paths > 0:
+            TextDisplayer.display(
+                TextDisplayerClassKeys.INIT_ALREADY_COMPLETED
+            )
+
+            return
+
         TextDisplayer.display(TextDisplayerClassKeys.WELLCOME_INIT_COMMAND)
 
         default_paths = DefaultToScan()
@@ -50,6 +80,22 @@ class InitCommand(AbstractCommand):
         response = walker.walk()
 
         total = len(response.results)
+
+        with self._conn.build_session() as session:
+            for path in response.results:
+                model = PathModel(
+                    filepath=str(path.relative_path.resolve().absolute()),
+                    parent_path=str(path.location.resource),
+                    is_folder=path.is_dir,
+                    is_file=path.is_file,
+                    normalized_filepath=normalize_path(
+                        path.relative_path,
+                    ),
+                    version=1
+                )
+
+                session.add(model)
+            session.commit()
 
         if namespace.show_mapped_paths:
             position_to_slice_results = (
