@@ -1,6 +1,6 @@
 from argparse import ArgumentParser, Namespace
 
-from sqlalchemy import select, func
+from sqlalchemy import select, func, delete
 
 from seekr.commands.abstract import AbstractCommand
 from seekr.constants.paths import DefaultToScan
@@ -49,6 +49,13 @@ class InitCommand(AbstractCommand):
             default=10,
             help="Number of paths to show. If pass -1 show all paths.",
         )
+        
+        self.parser.add_argument(
+            "--force",
+            dest="force",
+            action="store_true",
+            default=False,
+        )
 
     @finish_command_execution
     def handle(self, namespace: Namespace):
@@ -56,20 +63,26 @@ class InitCommand(AbstractCommand):
 
         self._conn: SqlAlchemyConnection = SqlAlchemyConnection.get_instance()
 
-        total_of_paths = 0
+        if not namespace.force:
+            total_of_paths = 0
+            with self._conn.build_session() as session:
+                statement = select(
+                    func.count(PathModel.id)
+                )
+    
+                total_of_paths = session.scalar(statement) or 0
+    
+            if total_of_paths > 0:
+                TextDisplayer.display(
+                    TextDisplayerClassKeys.INIT_ALREADY_COMPLETED
+                )
+    
+                return
+            
         with self._conn.build_session() as session:
-            statement = select(
-                func.count(PathModel.id)
-            )
-
-            total_of_paths = session.scalar(statement) or 0
-
-        if total_of_paths > 0:
-            TextDisplayer.display(
-                TextDisplayerClassKeys.INIT_ALREADY_COMPLETED
-            )
-
-            return
+            statement = delete(PathModel)
+            session.execute(statement)
+            session.commit()
 
         TextDisplayer.display(TextDisplayerClassKeys.WELLCOME_INIT_COMMAND)
 
