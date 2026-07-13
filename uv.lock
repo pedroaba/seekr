@@ -720,6 +720,7 @@ name = "secretstorage"
 version = "3.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "alembic" },
     { name = "cryptography" },
     { name = "jeepney" },
 ]
@@ -742,7 +743,6 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "alembic" },
     { name = "bandit" },
     { name = "pip-audit" },
     { name = "pytest" },
@@ -752,6 +752,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "alembic", specifier = ">=1.18.5" },
     { name = "cryptography", specifier = ">=49.0.0" },
     { name = "keyring", specifier = ">=25.7.0" },
     { name = "platformdirs", specifier = ">=4.10.0" },
@@ -761,7 +762,6 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "alembic", specifier = ">=1.18.5" },
     { name = "bandit", specifier = ">=1.9.4" },
     { name = "pip-audit", specifier = ">=2.10.1" },
     { name = "pytest", specifier = ">=9.1.1" },

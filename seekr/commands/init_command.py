@@ -2,6 +2,7 @@ from argparse import Namespace
 
 from seekr.commands.abstract import AbstractCommand
 from seekr.constants.paths import DefaultToScan
+from seekr.database.initializer import initialize_database
 from seekr.decorators.finish_command import finish_command_execution
 from seekr.texts import TextDisplayer, TextDisplayerClassKeys
 from seekr.texts.found_paths import FoundPathsText, Metadata
@@ -38,6 +39,8 @@ class InitCommand(AbstractCommand):
 
     @finish_command_execution
     def handle(self, namespace: Namespace):
+        initialize_database()
+
         TextDisplayer.display(TextDisplayerClassKeys.WELLCOME_INIT_COMMAND)
 
         default_paths = DefaultToScan()
