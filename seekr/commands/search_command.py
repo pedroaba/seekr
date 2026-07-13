@@ -61,10 +61,16 @@ class SearchCommand(AbstractCommand):
         )
 
         self.parser.add_argument(
-            "-l", "--limit",
+            "-l",
+            "--limit",
             dest="limit",
             type=int,
             default=10,
+            metavar="COUNT",
+            help=(
+                "Maximum number of matching paths to display "
+                "(default: %(default)s)."
+            ),
         )
 
         self.parser.add_argument(
@@ -72,4 +78,9 @@ class SearchCommand(AbstractCommand):
             dest="precision",
             type=int,
             default=80,
+            metavar="SCORE",
+            help=(
+                "Minimum fuzzy-match score required, from 0 to 100 "
+                "(default: %(default)s)."
+            ),
         )
