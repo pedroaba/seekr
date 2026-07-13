@@ -30,11 +30,25 @@ class WalkResult:
         }
 
 
+@dataclass(frozen=True)
+class Result:
+    results: list[WalkResult]
+    total_files: int
+    total_dirs: int
+
+    def to_json(self):
+        return {
+            "results": [result.to_json() for result in self.results],
+            "total_files": self.total_files,
+            "total_dirs": self.total_dirs,
+        }
+
+
 class Walker:
     def __init__(self, paths: list[PathModel] | None = None):
         self.__default_paths = paths or []
 
-    def walk(self) -> list[WalkResult]:
+    def walk(self) -> Result:
         results = []
 
         for model in self.__default_paths:
@@ -69,7 +83,19 @@ class Walker:
                             is_file=True,
                         )
                     )
-        return results
+
+        total_files = 0
+        total_dirs = 0
+
+        for result in results:
+            if result.is_dir:
+                total_dirs += 1
+                continue
+
+            if result.is_file:
+                total_files += 1
+
+        return Result(results, total_files, total_dirs)
 
     @staticmethod
     def _mount_scanned_path(current_dir: Path, filename: str) -> Path:
