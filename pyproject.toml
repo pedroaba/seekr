@@ -9,10 +9,12 @@ dependencies = [
     "keyring>=25.7.0",
     "platformdirs>=4.10.0",
     "rich>=15.0.0",
+    "sqlalchemy>=2.0.51",
 ]
 
 [dependency-groups]
 dev = [
+    "alembic>=1.18.5",
     "bandit>=1.9.4",
     "pip-audit>=2.10.1",
     "pytest>=9.1.1",
@@ -46,6 +48,9 @@ lint = "ruff check ."
 format = "ruff format ."
 audit = "pip-audit"
 security = "bandit -r seekr"
+db-upgrade = "alembic upgrade head"
+db-downgrade = "alembic downgrade -1"
+db-history = "alembic history --verbose"
 
 [tool.ruff]
 line-length = 88
