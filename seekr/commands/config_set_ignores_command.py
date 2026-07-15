@@ -1,51 +1,39 @@
-from argparse import Namespace
+from dataclasses import dataclass, field
 from pathlib import Path
 
-from seekr.commands.abstract import AbstractCommand
 from seekr.config import SeekrConfig
-from seekr.decorators.finish_command import finish_command_execution
 from seekr.models.path import PathModel
+from seekr.texts.commit_disable_warning import CommitDisabledWarningText
 from seekr.utils.validators.nickname import NicknameValidator
 from seekr.utils.validators.path import PathValidator
 
 
-class ConfigSetIgnoresCommand(AbstractCommand):
-    identifier = "ignores"
-    help_text = "Configure ignored paths and path nicknames"
-    description = (
-        "Add ignored filesystem paths or nickname patterns to the Seekr configuration."
-    )
-    epilog = (
-        "Examples:\n"
-        "  seekr config set ignores --path .venv build\n"
-        "  seekr config set ignores --path-nickname __pycache__ .pytest_cache\n"
-        "  seekr config set ignores --override --path dist"
-    )
+@dataclass(frozen=True, slots=True)
+class ConfigSetIgnoresCommandParams:
+    paths: list[Path] = field(default_factory=list)
+    nicknames: list[str] = field(default_factory=list)
+    override: bool = False
+    no_commit: bool = False
 
-    @finish_command_execution
-    def handle(self, namespace: Namespace):
-        paths = namespace.paths
-        nicknames = namespace.nicknames
 
-        if len(paths) == 0 and len(nicknames) == 0:
-            super().handle(namespace)
-            return
+class ConfigSetIgnoresCommand:
+    def __init__(self, params: ConfigSetIgnoresCommandParams) -> None:
+        self.params = params
 
+    def execute(self) -> None:
         ignores_patterns: list[PathModel] = []
 
-        for path in paths:
+        for path in self.params.paths:
             path_str = str(PathValidator(path).validate())
-            model = PathModel(path_str, is_system_path=True)
-            ignores_patterns.append(model)
+            ignores_patterns.append(PathModel(path_str, is_system_path=True))
 
-        for nickname in nicknames:
+        for nickname in self.params.nicknames:
             validated_nickname = NicknameValidator(nickname).validate()
-            model = PathModel(validated_nickname, is_nickname=True)
-            ignores_patterns.append(model)
+            ignores_patterns.append(PathModel(validated_nickname, is_nickname=True))
 
         config = SeekrConfig.get_instance()
 
-        if namespace.override:
+        if self.params.override:
             config.set_property("ignores", ignores_patterns)
         else:
             ignores_patterns_saved: list[PathModel] = (
@@ -60,46 +48,8 @@ class ConfigSetIgnoresCommand(AbstractCommand):
 
             config.set_property("ignores", ignores_patterns_saved)
 
-    def build(self):
-        self.parser.add_argument(
-            "-p",
-            "--path",
-            action="extend",
-            type=Path,
-            dest="paths",
-            nargs="+",
-            default=[],
-            help=(
-                "Filesystem path to ignore. Accepts one or more existing files "
-                "or folders."
-            ),
-        )
+        if self.params.no_commit:
+            CommitDisabledWarningText.display()
+            return
 
-        self.parser.add_argument(
-            "-pn",
-            "--path-nickname",
-            action="extend",
-            dest="nicknames",
-            nargs="+",
-            default=[],
-            help=(
-                "Path nickname or pattern to ignore by name. Matching folders "
-                "and their contents are ignored."
-            ),
-        )
-
-        self.parser.add_argument(
-            "-o",
-            "--override",
-            action="store_true",
-            default=False,
-            help="Replace the current ignore list instead of appending to it.",
-        )
-
-        self.parser.add_argument(
-            "--no-commit",
-            action="store_true",
-            help="Apply the change in memory without saving it to disk.",
-            default=False,
-            dest="no_commit",
-        )
+        config.commit()

@@ -1,28 +1,24 @@
 import json
-from argparse import Namespace
+from dataclasses import dataclass
 from pathlib import Path
 
 from rich import print_json
 
-from seekr.commands.abstract import AbstractCommand
 from seekr.config import SeekrConfig
-from seekr.decorators.finish_command import finish_command_execution
 from seekr.security.redact import RedactPath
 
 
-class ConfigShowCommand(AbstractCommand):
-    identifier = "show"
-    destination_command = "config_command"
-    destination_description = "Configuration output options"
-    help_text = "Show the current configuration"
-    description = "Print the current Seekr configuration as formatted JSON."
-    epilog = "Example:\n  seekr config show"
+@dataclass(frozen=True, slots=True)
+class ConfigShowCommandParams:
+    pass
 
-    @finish_command_execution
-    def handle(self, namespace: Namespace):
-        config = SeekrConfig.get_instance()
 
-        config_on_memory = config.get()
+class ConfigShowCommand:
+    def __init__(self, params: ConfigShowCommandParams) -> None:
+        self.params = params
+
+    def execute(self) -> None:
+        config_on_memory = SeekrConfig.get_instance().get()
         ignores = []
 
         for ignore_path in config_on_memory["ignores"]:
@@ -30,15 +26,12 @@ class ConfigShowCommand(AbstractCommand):
                 ignores.append(ignore_path)
                 continue
 
-            ignore_path = {
-                **ignore_path,
-                "resource": RedactPath.execute(Path(ignore_path["resource"])),
-            }
-
-            ignores.append(ignore_path)
+            ignores.append(
+                {
+                    **ignore_path,
+                    "resource": RedactPath.execute(Path(ignore_path["resource"])),
+                }
+            )
 
         config_on_memory["ignores"] = ignores
         print_json(json.dumps(config_on_memory, indent=4))
-
-    def build(self):
-        pass

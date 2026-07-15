@@ -1,39 +1,24 @@
-from argparse import Namespace
+from dataclasses import dataclass
 
-from seekr.commands.abstract import AbstractCommand
 from seekr.config import SeekrConfig
-from seekr.decorators.finish_command import finish_command_execution
 from seekr.texts.config_initialized import ConfigInitializedText
 from seekr.texts.config_reset import ConfigResetText
 
 
-class ConfigInitCommand(AbstractCommand):
-    identifier = "init"
-    destination_command = "config_key"
-    destination_description = "Initialize configuration values"
-    help_text = "Initialize the local configuration"
-    description = (
-        "Create or load the local Seekr configuration. Existing values are preserved "
-        "unless --reset is provided."
-    )
-    epilog = "Examples:\n  seekr config init\n  seekr config init --reset"
+@dataclass(frozen=True, slots=True)
+class ConfigInitCommandParams:
+    reset: bool = False
 
-    def build(self):
-        self.parser.add_argument(
-            "-r",
-            "--reset",
-            dest="reset",
-            action="store_true",
-            default=False,
-            help="Replace existing configuration values with Seekr's defaults.",
-        )
 
-    @finish_command_execution
-    def handle(self, namespace: Namespace):
-        conf = SeekrConfig.get_instance()
-        conf.build(reset=namespace.reset)
+class ConfigInitCommand:
+    def __init__(self, params: ConfigInitCommandParams) -> None:
+        self.params = params
 
-        if namespace.reset:
+    def execute(self) -> None:
+        config = SeekrConfig.get_instance()
+        config.build(reset=self.params.reset)
+
+        if self.params.reset:
             ConfigResetText.display()
             return
 
