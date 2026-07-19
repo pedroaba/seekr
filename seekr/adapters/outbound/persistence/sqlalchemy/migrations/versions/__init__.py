@@ -1,0 +1,1 @@
+"""Seekr database schema revisions."""

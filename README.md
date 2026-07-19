@@ -97,10 +97,33 @@ task security
 task audit
 ```
 
+The test suite is class-based and covers application use cases only. External
+services are replaced by in-memory or stub implementations of the ports.
+
+## Architecture
+
+Seekr uses Hexagonal Architecture (Ports and Adapters):
+
+```text
+CLI adapter -> application use cases -> domain
+                       |
+                       +-> ports <- filesystem, RapidFuzz, SQLAlchemy,
+                                    encrypted config and keyring adapters
+```
+
+- `seekr/domain/` contains entities, domain exceptions, and validation rules.
+- `seekr/application/use_cases/` contains the application workflows.
+- `seekr/application/ports/` defines framework-independent contracts.
+- `seekr/adapters/inbound/` contains user interfaces such as the CLI. A GUI can
+  be added here and reuse the same use cases.
+- `seekr/adapters/outbound/` contains filesystem, search, configuration, and
+  persistence implementations.
+- `seekr/bootstrap.py` is the composition root and connects ports to adapters.
+
 ## Database migrations
 
-Seekr uses SQLAlchemy models from `seekr/database/models/` and stores Alembic
-migrations in `seekr/database/migrations/`.
+The SQLAlchemy model and its Alembic migrations live together in
+`seekr/adapters/outbound/persistence/sqlalchemy/`.
 
 Create a migration after changing a model:
 
